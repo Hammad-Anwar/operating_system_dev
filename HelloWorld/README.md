@@ -1,6 +1,5 @@
 # Hello World!
 
-
 The code implements a simple "Hello, World" program using direct UART access.
 
 Files in this directory:

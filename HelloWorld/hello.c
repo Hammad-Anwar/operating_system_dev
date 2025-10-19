@@ -24,16 +24,53 @@ struct uart {
 volatile struct uart* uart0 = (volatile struct uart *)0x10000000;
 
 void putachar(char c) {
-
+    while ((uart0->LSR & 0x20) == 0);
+    uart0->THR = c;
 }
+
+char getchar() {
+    while ((uart0->LSR & 0x01) == 0);
+    return uart0->RBR;
+}
+
+void readstring(char *buf, int max_len) {
+    int i = 0;
+    char c;
+    while (i < max_len - 1) {
+        c = getchar();
+        putachar(c);
+        if (c == '\n' || c == '\r') break;
+        buf[i++] = c;
+    }
+    buf[i] = 0;
+}
+
 
 void printstring(char *s) {
-
+    while (*s) {
+	putachar(*s++);
+    }
 }
+
+void touppercase(char *s) {
+    while (*s) {
+        if (*s >= 'a' && *s <= 'z') {
+            *s -= 32;
+        }
+        s++;
+    }
+}
+
 
 int main(void) {
     printstring("Hallo RISC-V!\n");
+    char buffer[64];
+    printstring("Enter text:\n");
+    readstring(buffer, sizeof(buffer));
+    touppercase(buffer);
+    printstring("Uppercase version:\n");
+    printstring(buffer);
+    printstring("\n");
     return 0;
 }
-
 
